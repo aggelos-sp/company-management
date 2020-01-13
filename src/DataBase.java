@@ -25,6 +25,16 @@ public class DataBase {
             ce.printStackTrace();
         }
     }
+
+    public void sql_exception_handle(SQLException se){
+        System.out.println("Exception during initialization!!");
+        while (se != null){
+            System.out.println("Message: " + se.getMessage());
+            System.out.println("SQLState: " + se.getSQLState());
+            System.out.println("ErrorCode: " + se.getErrorCode());
+            se = se.getNextException();
+        }
+    }
     public void db_init(){
         try {
             String sql = "CREATE TABLE REGISTRATION " +
@@ -36,22 +46,18 @@ public class DataBase {
             Statement stmt = con.createStatement();
             stmt.executeUpdate(sql);
         }catch (SQLException se){
-            System.out.println("Exception during initialization!!");
-            while (se != null){
-                System.out.println("Message: " + se.getMessage());
-                System.out.println("SQLState: " + se.getSQLState());
-                System.out.println("ErrorCode: " + se.getErrorCode());
-                se = se.getNextException();
-            }
+            sql_exception_handle(se);
         }
     }
 
     public void db_close(){
         try {
+            String sql = "DROP TABLE REGISTRATION ";
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(sql);
             con.close();
-        }catch (SQLException e){
-            System.out.println("Exception trying to close connection!!");
-            e.printStackTrace();
+        }catch (SQLException se){
+            sql_exception_handle(se);
         }
     }
 }
