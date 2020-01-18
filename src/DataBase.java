@@ -111,6 +111,16 @@ public class DataBase {
         }
     }
 
+    public void db_hire_permanent_staff(boolean isTeacher,String first, String last, int age, String iban, String address,
+                        boolean marital_status, int work_years, String bank_name, int children_num, String start_date){
+
+    }
+
+    public void db_hire_contract_staff(boolean isTeacher,String first, String last, int age, String iban, String address,
+                                        boolean marital_status, int work_years, String bank_name, int children_num, String start_date){
+
+    }
+
     public void db_close(){
         try {
             String sql = "DROP TABLE permanent_staff ";
