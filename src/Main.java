@@ -1,5 +1,7 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -8,13 +10,12 @@ public class Main {
                 "root","");
 
         final JFrame frame = new JFrame("DataBase");
-        //input field
-        final JTextField input_text = new JTextField();
-        input_text.setBounds(360,20, 700,50);
-        //output field
-        final JTextField output_text = new JTextField();
-        output_text.setBounds(360, 70, 700, 50);
-        output_text.setEditable(false);
+        //input output field
+        final JTextArea input_output_text = new JTextArea();
+        input_output_text.setBounds(360, 10, 700, 500);
+        input_output_text.add(new JScrollPane(), BorderLayout.CENTER);
+
+        //output_text.setEditable(false);
         //add initialization button
         final JButton button_initialize = new JButton("Init");
         button_initialize.setBounds(50,100,300,20);
@@ -40,7 +41,44 @@ public class Main {
         button_hire_tenure_professor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String inp = input_output_text.getText();
+                String[] string_array = inp.split("\n", -1);
+                String first = string_array[0];
+                String last = string_array[1];
+                int age =  Integer.parseInt(string_array[2]);
+                String iban = string_array[3];
+                String address = string_array[4];
+                boolean married = false;
+                if(string_array[5].equals("married")){
+                    System.out.println("is married!!!");
+                    married = true;
+                }
+                int work_years = Integer.parseInt(string_array[6]);
+                String bank_name = string_array[7];
+                int num_children = Integer.parseInt(string_array[8]);
+                String start_date = string_array[9];
+                String dep_name = string_array[10];
+                Phones p = new Phones();
+                Children c = new Children();
+                int i = 11;
+                while (i < string_array.length){
+                    if(string_array[i].startsWith("p")){
+                        p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
+                    }else if(string_array[i].startsWith("!")){
+                        String[] sp = string_array[i].replace("!","").split(" ",-1);
+                        c.name.add(sp[0]);
+                        c.age.add(Integer.parseInt(sp[1]));
+                    }
+                    else{
+                        System.out.println("Invalid input");
+                        break;
+                    }
+                    i++;
+                }
 
+                db.db_hire_permanent_staff(true, first,last,age,iban,address,married,work_years,bank_name,
+                        num_children,start_date,p,c,dep_name);
+                input_output_text.setText("");
             }
         });
         //hire tenure staff button
@@ -49,7 +87,44 @@ public class Main {
         button_hire_tenure_staff.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String inp = input_output_text.getText();
+                String[] string_array = inp.split("\n", -1);
+                String first = string_array[0];
+                String last = string_array[1];
+                int age =  Integer.parseInt(string_array[2]);
+                String iban = string_array[3];
+                String address = string_array[4];
+                boolean married = false;
+                if(string_array[5].equals("married")){
+                    System.out.println("is married!!!");
+                    married = true;
+                }
+                int work_years = Integer.parseInt(string_array[6]);
+                String bank_name = string_array[7];
+                int num_children = Integer.parseInt(string_array[8]);
+                String start_date = string_array[9];
+                String dep_name = string_array[10];
+                Phones p = new Phones();
+                Children c = new Children();
+                int i = 11;
+                while (i < string_array.length){
+                    if(string_array[i].startsWith("p")){
+                        p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
+                    }else if(string_array[i].startsWith("!")){
+                        String[] sp = string_array[i].replace("!","").split(" ",-1);
+                        c.name.add(sp[0]);
+                        c.age.add(Integer.parseInt(sp[1]));
+                    }
+                    else{
+                        System.out.println("Invalid input");
+                        break;
+                    }
+                    i++;
+                }
 
+                db.db_hire_permanent_staff(false, first,last,age,iban,address,married,work_years,bank_name,
+                        num_children,start_date,p,c,dep_name);
+                input_output_text.setText("");
             }
         });
         //hire contract professor button
@@ -58,7 +133,45 @@ public class Main {
         button_hire_contract_professor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String inp = input_output_text.getText();
+                String[] string_array = inp.split("\n", -1);
+                String first = string_array[0];
+                String last = string_array[1];
+                int age =  Integer.parseInt(string_array[2]);
+                String iban = string_array[3];
+                String address = string_array[4];
+                boolean married = false;
+                if(string_array[5].equals("married")){
+                    System.out.println("is married!!!");
+                    married = true;
+                }
+                int work_years = Integer.parseInt(string_array[6]);
+                String bank_name = string_array[7];
+                int num_children = Integer.parseInt(string_array[8]);
+                String start_date = string_array[9];
+                String end_date = string_array[10];
+                String dep_name = string_array[11];
+                Phones p = new Phones();
+                Children c = new Children();
+                int i = 12;
+                while (i < string_array.length){
+                    if(string_array[i].startsWith("p")){
+                        p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
+                    }else if(string_array[i].startsWith("!")){
+                        String[] sp = string_array[i].replace("!","").split(" ",-1);
+                        c.name.add(sp[0]);
+                        c.age.add(Integer.parseInt(sp[1]));
+                    }
+                    else{
+                        System.out.println("Invalid input");
+                        break;
+                    }
+                    i++;
+                }
 
+                db.db_hire_contract_staff(true, first,last,age,iban,address,married,work_years,bank_name,
+                        num_children,start_date,end_date,p,c,dep_name);
+                input_output_text.setText("");
             }
         });
         //hire contract staff button
@@ -67,8 +180,46 @@ public class Main {
         button_hire_contract_staff.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                    String inp = input_output_text.getText();
+                    String[] string_array = inp.split("\n", -1);
+                    String first = string_array[0];
+                    String last = string_array[1];
+                    int age =  Integer.parseInt(string_array[2]);
+                    String iban = string_array[3];
+                    String address = string_array[4];
+                    boolean married = false;
+                    if(string_array[5].equals("married")){
+                        System.out.println("is married!!!");
+                        married = true;
+                    }
+                    int work_years = Integer.parseInt(string_array[6]);
+                    String bank_name = string_array[7];
+                    int num_children = Integer.parseInt(string_array[8]);
+                    String start_date = string_array[9];
+                    String end_date = string_array[10];
+                    String dep_name = string_array[11];
+                    Phones p = new Phones();
+                    Children c = new Children();
+                    int i = 12;
+                    while (i < string_array.length){
+                        if(string_array[i].startsWith("p")){
+                            p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
+                        }else if(string_array[i].startsWith("!")){
+                            String[] sp = string_array[i].replace("!","").split(" ",-1);
+                            c.name.add(sp[0]);
+                            c.age.add(Integer.parseInt(sp[1]));
+                        }
+                        else{
+                            System.out.println("Invalid input");
+                            break;
+                        }
+                        i++;
+                    }
 
-            }
+                    db.db_hire_contract_staff(false, first,last,age,iban,address,married,work_years,bank_name,
+                            num_children,start_date,end_date,p,c,dep_name);
+                    input_output_text.setText("");
+                }
         });
         //Update Employee button
         final JButton button_update_employee = new JButton("Update Employee");
@@ -157,13 +308,14 @@ public class Main {
         button_arbitrary_sql_questions.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                String inp = input_output_text.getText();
+                input_output_text.setText("");
+                input_output_text.setText(db.arbitrary(inp));
             }
         });
         //add everything to the frame
         frame.add(button_initialize);
         frame.add(button_close);
-        frame.add(input_text);
         frame.add(button_hire_tenure_professor);
         frame.add(button_hire_tenure_staff);
         frame.add(button_hire_contract_professor);
@@ -178,7 +330,7 @@ public class Main {
         frame.add(button_employee_status);
         frame.add(button_total_payroll_per_category);
         frame.add(button_arbitrary_sql_questions);
-        frame.add(output_text);
+        frame.add(input_output_text);
         frame.setSize(1366,768);
         frame.setLayout(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
