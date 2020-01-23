@@ -1,5 +1,4 @@
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 public class DataBase {
@@ -20,7 +19,7 @@ public class DataBase {
     private String url, databaseName, username, password;
     private int port;
     private salaries current_salaries = null;
-    private int ID = 0;
+    private int key = 0;
     DataBase(String url, String databaseName, int port, String username, String password){
         this.url = url;
         this.databaseName = databaseName;
@@ -68,12 +67,11 @@ public class DataBase {
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE permanent_phones"+
                 " (id INTEGER not NULL,"+
-                " phone INTEGER,"+
-                " PRIMARY KEY (id))";
+                " phone INTEGER)";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE contract_staff " +
-                    "(id INTEGER not NULL AUTO_INCREMENT, " +
+                    "(id INTEGER not NULL , " +
                     " first VARCHAR(255), " +
                     " last VARCHAR(255), " +
                     " age INTEGER, " +
@@ -97,8 +95,7 @@ public class DataBase {
             sql = "CREATE TABLE children"+
                 "( name VARCHAR(255),"+
                 " age INTEGER,"+
-                " id INTEGER not NULL,"+
-                " PRIMARY KEY (id))";
+                " id INTEGER not NULL)";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE  department"+
@@ -123,8 +120,7 @@ public class DataBase {
             sql = "CREATE TABLE payroll"+
                     " (id INTEGER not NULL,"+
                     " payroll INTEGER,"+
-                    " department_name VARCHAR(255),"+
-                    " PRIMARY KEY (id,department_name))";
+                    " department_name VARCHAR(255))";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE base_money"+
@@ -149,6 +145,7 @@ public class DataBase {
             String sql = "SELECT * FROM base_money ORDER BY date DESC LIMIT 1";
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()){
+                System.out.println("The return set is : "+rs.toString());
                 if(current_salaries == null){
                     current_salaries = new salaries(rs.getString("date"), rs.getInt("base_salary"),
                             rs.getInt("research_allowance"), rs.getInt("library_allowance"),
@@ -171,9 +168,20 @@ public class DataBase {
                         boolean marital_status, int work_years, String bank_name, int children_num, String start_date,
                                         Phones p, Children c, String dep_name){
         get_current_salaries();
+        /*
+        System.out.println(first);
+        System.out.println(last);
+        System.out.println(age);
+        System.out.println(iban);
+        System.out.println(address);
+        System.out.println(marital_status);
+        System.out.println(work_years);
+        System.out.println(bank_name);
+        System.out.println(children_num);
+        System.out.println(start_date);*/
         try {
             Statement stmt = con.createStatement();
-            ID++;
+            key++;
             int family = current_salaries.family_allowance;
             if(marital_status){
                 if(children_num!=0){
@@ -182,27 +190,27 @@ public class DataBase {
             }else {
                 family = 0;
             }
-            String sql = "INSERT INTO permanent_staff VALUES ("+ID+","+first+","+last+","+age+","+iban+","+address+","+
-                    marital_status+","+ family+","+work_years+","+bank_name+","+children_num+")";
+            String sql = "INSERT INTO permanent_staff VALUES ("+ key +",'"+first+"','"+last+"',"+age+",'"+iban+"','"+address+"',"+
+                    marital_status+","+ family+","+work_years+",'"+bank_name+"',"+children_num+")";
+
+
+            //sql = "INSERT  INTO permanent_staff VALUES (1,'aggelos','spiliotis',27,'gr214314','pandorou 5',true,150,4,'ethniki',5)";
             stmt.executeUpdate(sql);
             Iterator iter = p.phone.iterator();
             while (iter.hasNext()){
-                sql = "INSERT INTO permanent_phones VALUES("+ID+","+iter.next()+")";
-                stmt.executeUpdate(sql);
-            }
-            for(int i = 0; i < p.phone.size(); i++){
-                sql = "INSERT INTO permanent_phones VALUES("+ID+","+p.phone.get(i)+")";
+
+                sql = "INSERT INTO permanent_phones VALUES("+ key +","+iter.next()+")";
                 stmt.executeUpdate(sql);
             }
             if(isTeacher){
-                sql = "INSERT INTO allowance_permanent VALUES ("+ID+","+current_salaries.research_allowance+")";
+                sql = "INSERT INTO allowance_permanent VALUES ("+ key +","+current_salaries.research_allowance+")";
                 stmt.executeUpdate(sql);
             }
             if(children_num !=0){
                 Iterator iter_a = c.age.iterator();
                 Iterator iter_n = c.name.iterator();
                 while (iter_a.hasNext() && iter_n.hasNext()){
-                    sql = "INSERT INTO children VALUES ("+iter_n.next()+","+iter_a.next()+","+ID+")";
+                    sql = "INSERT INTO children VALUES ('"+iter_n.next()+"',"+iter_a.next()+","+ key +")";
                     stmt.executeUpdate(sql);
                 }
             }
@@ -219,7 +227,7 @@ public class DataBase {
             if(isTeacher){
                 salary += current_salaries.research_allowance;
             }
-            sql = "INSERT INTO payroll VALUES ("+ID+","+dep_name+","+salary+")";
+            sql = "INSERT INTO payroll VALUES ("+ key +","+salary+ ",'"+dep_name+"')";
             stmt.executeUpdate(sql);
 
 
@@ -231,11 +239,11 @@ public class DataBase {
 
     public void db_hire_contract_staff(boolean isTeacher,String first, String last, int age, String iban, String address,
                                         boolean marital_status, int work_years, String bank_name, int children_num, String start_date,
-                                        String end_date, Phones p, Children c, String dep_name){
+                                        String end_date, Phones p, Children c, String dep_name,int contract_salary){
         get_current_salaries();
         try {
             Statement stmt = con.createStatement();
-            ID++;
+            key++;
             int family = current_salaries.family_allowance;
             if(marital_status){
                 if(children_num!=0){
@@ -244,44 +252,33 @@ public class DataBase {
             }else {
                 family = 0;
             }
-            String sql = "INSERT INTO permanent_staff VALUES ("+ID+","+first+","+last+","+age+","+iban+","+address+","+
-                    marital_status+","+ family+","+work_years+","+bank_name+","+children_num+","+start_date+","+end_date+")";
+            String sql = "INSERT INTO contract_staff VALUES ("+ key +",'"+first+"','"+last+"',"+age+",'"+iban+"','"+address+"',"+
+                    marital_status+","+ family+",'"+bank_name+"',"+children_num+",'"+start_date+"','"+end_date+"')";
             stmt.executeUpdate(sql);
             Iterator iter = p.phone.iterator();
             while (iter.hasNext()){
-                sql = "INSERT INTO permanent_phones VALUES("+ID+","+iter.next()+")";
+                sql = "INSERT INTO contract_phones VALUES("+ key +","+iter.next()+")";
                 stmt.executeUpdate(sql);
             }
-            for(int i = 0; i < p.phone.size(); i++){
-                sql = "INSERT INTO permanent_phones VALUES("+ID+","+p.phone.get(i)+")";
-                stmt.executeUpdate(sql);
-            }
+
             if(isTeacher){
-                sql = "INSERT INTO allowance_contract VALUES ("+ID+","+current_salaries.library_allowance+")";
+                sql = "INSERT INTO allowance_contract VALUES ("+ key +","+current_salaries.library_allowance+")";
                 stmt.executeUpdate(sql);
             }
             if(children_num !=0){
                 Iterator iter_a = c.age.iterator();
                 Iterator iter_n = c.name.iterator();
                 while (iter_a.hasNext() && iter_n.hasNext()){
-                    sql = "INSERT INTO children VALUES ("+iter_n.next()+","+iter_a.next()+","+ID+")";
+                    sql = "INSERT INTO children VALUES ('"+iter_n.next()+"',"+iter_a.next()+","+ key +")";
                     stmt.executeUpdate(sql);
                 }
             }
-            int salary = 0;
+            int salary = contract_salary;
             salary += family;
-            double bs = current_salaries.base_salary;
-            for (int j = 0; j<work_years;j++){
-                if(j==5){
-                    break;
-                }
-                bs = bs*1.15;
-            }
-            salary += bs;
             if(isTeacher){
-                salary += current_salaries.research_allowance;
+                salary += current_salaries.library_allowance;
             }
-            sql = "INSERT INTO payroll VALUES ("+ID+","+dep_name+","+salary+")";
+            sql = "INSERT INTO payroll VALUES ("+ key +","+salary+",'"+dep_name+"')";
             stmt.executeUpdate(sql);
 
 
@@ -290,19 +287,42 @@ public class DataBase {
             sql_exception_handle(se);
         }
     }
-    public String arbitrary(String s){
+    public String arbitrary(String sql){
         String r ="";
         try{
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(s);
-            while(rs.next()){
-                r += rs.toString() +"\n";
+            if(sql.charAt(0) == 'I' || sql.charAt(0) == 'i'){
+
+                stmt.executeUpdate(sql);
+            }else{
+                ResultSet rs = stmt.executeQuery(sql);
+                r = toStringRS(rs);
             }
         }catch(SQLException se){
             sql_exception_handle(se);
         }finally {
             return r;
         }
+    }
+    public String toStringRS(ResultSet rs){
+        try {
+            String r = "";
+            ResultSetMetaData md = rs.getMetaData();
+            int col_num = md.getColumnCount();
+            while(rs.next()){
+                for (int i = 1; i <= col_num; i++){
+                    if(i > 1){
+                        r += ", ";
+                    }
+                    r += rs.getString(i);
+                }
+                r += "\n";
+                return r;
+            }
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+        return null;
     }
 
     public void db_close(){

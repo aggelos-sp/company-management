@@ -44,20 +44,31 @@ public class Main {
                 String inp = input_output_text.getText();
                 String[] string_array = inp.split("\n", -1);
                 String first = string_array[0];
+                System.out.println(first);
                 String last = string_array[1];
+                System.out.println(last);
                 int age =  Integer.parseInt(string_array[2]);
+                System.out.println(age);
                 String iban = string_array[3];
+                System.out.println(iban);
                 String address = string_array[4];
+                System.out.println(address);
                 boolean married = false;
                 if(string_array[5].equals("married")){
                     System.out.println("is married!!!");
                     married = true;
                 }
+                System.out.println(married);
                 int work_years = Integer.parseInt(string_array[6]);
+                System.out.println(work_years);
                 String bank_name = string_array[7];
+                System.out.println(bank_name);
                 int num_children = Integer.parseInt(string_array[8]);
+                System.out.println(num_children);
                 String start_date = string_array[9];
+                System.out.println(start_date);
                 String dep_name = string_array[10];
+                System.out.println(dep_name);
                 Phones p = new Phones();
                 Children c = new Children();
                 int i = 11;
@@ -151,9 +162,10 @@ public class Main {
                 String start_date = string_array[9];
                 String end_date = string_array[10];
                 String dep_name = string_array[11];
+                int contract_salary = Integer.parseInt(string_array[12]);
                 Phones p = new Phones();
                 Children c = new Children();
-                int i = 12;
+                int i = 13;
                 while (i < string_array.length){
                     if(string_array[i].startsWith("p")){
                         p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
@@ -170,7 +182,7 @@ public class Main {
                 }
 
                 db.db_hire_contract_staff(true, first,last,age,iban,address,married,work_years,bank_name,
-                        num_children,start_date,end_date,p,c,dep_name);
+                        num_children,start_date,end_date,p,c,dep_name,contract_salary);
                 input_output_text.setText("");
             }
         });
@@ -198,9 +210,10 @@ public class Main {
                     String start_date = string_array[9];
                     String end_date = string_array[10];
                     String dep_name = string_array[11];
+                    int contract_salary = Integer.parseInt(string_array[12]);
                     Phones p = new Phones();
                     Children c = new Children();
-                    int i = 12;
+                    int i = 13;
                     while (i < string_array.length){
                         if(string_array[i].startsWith("p")){
                             p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
@@ -217,7 +230,7 @@ public class Main {
                     }
 
                     db.db_hire_contract_staff(false, first,last,age,iban,address,married,work_years,bank_name,
-                            num_children,start_date,end_date,p,c,dep_name);
+                            num_children,start_date,end_date,p,c,dep_name,contract_salary);
                     input_output_text.setText("");
                 }
         });
