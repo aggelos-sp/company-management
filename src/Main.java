@@ -36,13 +36,26 @@ public class Main {
             }
         });
         //hire tenure professor button
-        final JButton button_hire_tenure_professor = new JButton("Hire Tenure Professor");
-        button_hire_tenure_professor.setBounds(50, 140, 300, 20);
-        button_hire_tenure_professor.addActionListener(new ActionListener() {
+        final JButton account_open = new JButton("Open Account");
+        account_open.setBounds(50, 140, 300, 20);
+        account_open.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String inp = input_output_text.getText();
                 String[] string_array = inp.split("\n", -1);
+                String type = string_array[0];
+                if(type.charAt(0) == 'I'){
+
+                }else if(type.charAt(0) == 'C'){
+
+                }else if(type.charAt(0) == 'M'){
+
+                }else {
+                    throw new RuntimeException("First Character must always me the type of account!!!\n");
+                }
+
+
+
                 String first = string_array[0];
                 System.out.println(first);
                 String last = string_array[1];
@@ -329,7 +342,7 @@ public class Main {
         //add everything to the frame
         frame.add(button_initialize);
         frame.add(button_close);
-        frame.add(button_hire_tenure_professor);
+        frame.add(account_open);
         frame.add(button_hire_tenure_staff);
         frame.add(button_hire_contract_professor);
         frame.add(button_hire_contract_staff);

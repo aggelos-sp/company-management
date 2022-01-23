@@ -2,6 +2,7 @@ import java.sql.*;
 import java.util.Iterator;
 
 public class DataBase {
+    private int user_id = 0;
     class salaries{
         public int  base_salary, research_allowance, library_allowance, family_allowance,per_child;
         String date;
@@ -51,93 +52,69 @@ public class DataBase {
     public void db_init(){
         try {
             Statement stmt = con.createStatement();
-            String sql = "CREATE TABLE permanent_staff " +
-                    "(id INTEGER not NULL, " +
-                    " first VARCHAR(255), " +
-                    " last VARCHAR(255), " +
-                    " age INTEGER, " +
-                    " iban VARCHAR(255),"+
-                    " address VARCHAR(255),"+
-                    " marital_status BOOL,"+
-                    " family_allowance INTEGER,"+
-                    " work_years INTEGER,"+
-                    " bank_name VARCHAR(255),"+
-                    " children_num INTEGER,"+
-                    " PRIMARY KEY ( id ))";
-            stmt.executeUpdate(sql);
-            sql = "CREATE TABLE permanent_phones"+
-                " (id INTEGER not NULL,"+
-                " phone INTEGER)";
+            String sql = "CREATE TABLE merchant " +
+                    "(merchant_id INTEGER not NULL, " +
+                    " first_name VARCHAR(255), " +
+                    " last_name VARCHAR(255), " +
+                    " commision FLOAT, " +
+                    " profit FLOAT,"+
+                    " amount_owed FLOAT,"+
+                    " account_id INTEGER,"+
+                    " PRIMARY KEY ( merchant_id ))";
             stmt.executeUpdate(sql);
 
-            sql = "CREATE TABLE contract_staff " +
-                    "(id INTEGER not NULL , " +
-                    " first VARCHAR(255), " +
-                    " last VARCHAR(255), " +
-                    " age INTEGER, " +
-                    " iban VARCHAR(255),"+
-                    " address VARCHAR(255),"+
-                    " marital_status BOOL,"+
-                    " family_allowance INTEGER,"+
-                    " bank_name VARCHAR(255),"+
-                    " children_num INTEGER,"+
-                    " start_date VARCHAR(255),"+
-                    " end_date VARCHAR(255),"+
-                    " PRIMARY KEY ( id ))";
+            sql = "CREATE TABLE individual " +
+                    "(user_id INTEGER not NULL , " +
+                    " first_name VARCHAR(255), " +
+                    " last_name VARCHAR(255), " +
+                    " expiration_date DATE, " +
+                    " amount_owed FLOAT,"+
+                    " amount_left FLOAT ,"+
+                    " credit_limit FLOAT ,"+
+                    " account_id INTEGER not NULL,"+
+                    " PRIMARY KEY ( account_id ))";
             stmt.executeUpdate(sql);
 
-            sql = "CREATE TABLE contract_phones"+
-                    " (id INTEGER not NULL,"+
-                    " phone INTEGER)";//+
-                    //" PRIMARY KEY (id))";
+
+            sql = "CREATE TABLE company_user " +
+                    "(user_id INTEGER not NULL , " +
+                    " first_name VARCHAR(255), " +
+                    " last_name VARCHAR(255), " +
+                    " company_name VARCHAR(255), " +
+                    " company_id INTEGER , " +
+                    " expiration_date DATE, " +
+                    " amount_owed FLOAT,"+
+                    " amount_left FLOAT ,"+
+                    " credit_limit FLOAT ,"+
+                    " account_id INTEGER not NULL,"+
+                    " PRIMARY KEY ( account_id ))";
             stmt.executeUpdate(sql);
 
-            sql = "CREATE TABLE children"+
-                "( name VARCHAR(255),"+
-                " age INTEGER,"+
-                " id INTEGER not NULL)";
+            sql = "CREATE TABLE transactions " +
+                    "(user_id INTEGER not NULL , " +
+                    " merchant_first_name VARCHAR(255), " +
+                    " merchant_last_name VARCHAR(255), " +
+                    " buyer_first_name VARCHAR(255), " +
+                    " buyer_last_name VARCHAR(255), " +
+                    " transaction_date DATE, " +
+                    " transaction_amount FLOAT,"+
+                    " transaction_type VARCHAR (255),"+
+                    " merchant_id INTEGER not NULL,"+
+                    " buyer_id INTEGER not NULL)";
             stmt.executeUpdate(sql);
 
-            sql = "CREATE TABLE  department"+
-                " (dep_name VARCHAR (255) not NULL,"+
-                " hire_date VARCHAR(255),"+
-                " id INTEGER ,"+
-                " PRIMARY KEY(dep_name)) ";
-            stmt.executeUpdate(sql);
-
-            sql = "CREATE TABLE allowance_permanent"+
-                " (id INTEGER not NULL,"+
-                " research_allowance INTEGER,"+
-                " PRIMARY KEY (id))";
-            stmt.executeUpdate(sql);
-
-            sql = "CREATE TABLE allowance_contract"+
-                    " (id INTEGER not NULL,"+
-                    " library_allowance INTEGER,"+
-                    " PRIMARY KEY (id))";
-            stmt.executeUpdate(sql);
-
-            sql = "CREATE TABLE payroll"+
-                    " (id INTEGER not NULL,"+
-                    " payroll INTEGER,"+
-                    " department_name VARCHAR(255))";
-            stmt.executeUpdate(sql);
-
-            sql = "CREATE TABLE base_money"+
-                    "(date VARCHAR(255)not NULL,"+
-                    " base_salary INTEGER,"+
-                    " research_allowance INTEGER,"+
-                    " library_allowance INTEGER,"+
-                    " family_allowance INTEGER,"+
-                    " per_child INTEGER)";
-            stmt.executeUpdate(sql);
-
-            sql = "INSERT INTO base_money"+
-                " VALUES ('01012020', 750, 250, 150, 100, 50)";
-            stmt.executeUpdate(sql);
         }catch (SQLException se){
             sql_exception_handle(se);
         }
+    }
+
+    void db_open_company_account(String company_name){
+        float credit_limit;
+        String[] fist_name, last_name;
+        float amount_owed = 0;
+        float credit_amount_left = 0;
+        String expiration_date;
+        int user_id;
     }
     public void get_current_salaries(){
         try {
@@ -327,36 +304,19 @@ public class DataBase {
 
     public void db_close(){
         try {
-            String sql = "DROP TABLE permanent_staff ";
+            String sql = "DROP TABLE company_user ";
             Statement stmt = con.createStatement();
             stmt.executeUpdate(sql);
 
-            sql = "DROP TABLE contract_staff ";
+            sql = "DROP TABLE individual ";
             stmt.executeUpdate(sql);
 
-            sql = "DROP TABLE contract_phones ";
+            sql = "DROP TABLE merchant ";
             stmt.executeUpdate(sql);
 
-            sql = "DROP TABLE permanent_phones ";
+            sql = "DROP TABLE transactions ";
             stmt.executeUpdate(sql);
 
-            sql = "DROP TABLE children ";
-            stmt.executeUpdate(sql);
-
-            sql = "DROP TABLE department ";
-            stmt.executeUpdate(sql);
-
-            sql = "DROP TABLE allowance_permanent ";
-            stmt.executeUpdate(sql);
-
-            sql = "DROP TABLE allowance_contract ";
-            stmt.executeUpdate(sql);
-
-            sql = "DROP TABLE payroll ";
-            stmt.executeUpdate(sql);
-
-            sql = "DROP TABLE base_money ";
-            stmt.executeUpdate(sql);
             con.close();
         }catch (SQLException se){
             sql_exception_handle(se);
