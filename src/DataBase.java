@@ -1,8 +1,13 @@
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.Iterator;
 
 public class DataBase {
-    private int user_id = 0;
+    private int user_id = 1;
+    private int company_id = 1;
+    private int account_id = 1;
+    private int merchant_id = 1;
+    private int order_no = 1;
     class salaries{
         public int  base_salary, research_allowance, library_allowance, family_allowance,per_child;
         String date;
@@ -72,7 +77,7 @@ public class DataBase {
                     " amount_left FLOAT ,"+
                     " credit_limit FLOAT ,"+
                     " account_id INTEGER not NULL,"+
-                    " PRIMARY KEY ( account_id ))";
+                    " PRIMARY KEY ( user_id ))";
             stmt.executeUpdate(sql);
 
 
@@ -87,7 +92,7 @@ public class DataBase {
                     " amount_left FLOAT ,"+
                     " credit_limit FLOAT ,"+
                     " account_id INTEGER not NULL,"+
-                    " PRIMARY KEY ( account_id ))";
+                    " PRIMARY KEY ( user_id ))";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE transactions " +
@@ -100,7 +105,7 @@ public class DataBase {
                     " transaction_amount FLOAT,"+
                     " transaction_type VARCHAR (255),"+
                     " merchant_id INTEGER not NULL,"+
-                    " buyer_id INTEGER not NULL)";
+                    " order_no INTEGER not NULL)";
             stmt.executeUpdate(sql);
 
         }catch (SQLException se){
@@ -108,14 +113,302 @@ public class DataBase {
         }
     }
 
-    void db_open_company_account(String company_name){
-        float credit_limit;
-        String[] fist_name, last_name;
-        float amount_owed = 0;
-        float credit_amount_left = 0;
-        String expiration_date;
-        int user_id;
+    void db_open_company_account(String company_name, String[] employee_first, String[] employee_last,
+                                 String expiration_date, float credit_limit){
+        float credit_amount_left = credit_limit;
+        String sql;
+        for(int i = 0; i < employee_first.length; i++){
+            try {
+                Statement stmt = con.createStatement();
+                sql = "INSERT INTO company_user VALUES ( "+ user_id + ",'" +employee_first[i] + "','"+
+                        employee_last[i] + "','" + company_name + "'," + company_id + ",'" + expiration_date +
+                        "', 0 ," + credit_amount_left + "," + credit_limit + "," + account_id +")";
+                stmt.executeUpdate(sql);
+                user_id++;
+            }catch (SQLException se){
+                sql_exception_handle(se);
+            }
+        }
+
+
+        company_id++;
+        account_id++;
     }
+    void db_open_private_account(String first_name, String last_name, String expiration_date, float credit_limit){
+        String sql;
+        float amount_left = credit_limit;
+        try{
+            Statement stmt = con.createStatement();
+            sql = "INSERT INTO individual VALUES (" + user_id + ",'"+first_name+"','"+last_name+"','" +
+                    expiration_date + "'," + 0 + ","+ amount_left + "," + credit_limit + "," + account_id +")";
+            stmt.executeUpdate(sql);
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+        user_id++;
+        account_id++;
+    }
+
+    void db_open_merchant_account(String merchant_first, String merchant_last, float commission){
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "INSERT INTO merchant VALUES (" + merchant_id + ",'" + merchant_first + "','"+
+                    merchant_last + "'," + commission + "," + 0 + "," + 0 + "," + account_id + ")";
+            stmt.executeUpdate(sql);
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+        account_id++;
+    }
+
+    void db_close_account_merchant(int id){
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "DELETE FROM merchant WHERE (account_id = "+ id + "AND amount_owed=0)";
+            stmt.executeUpdate(sql);
+
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+    }
+
+    void db_close_account_individual(int id){
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "DELETE FROM individual WHERE account_id = "+ id+ "AND amount_owed= 0)";
+            stmt.executeUpdate(sql);
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+    }
+
+    void db_close_account_company(int id){
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "SELECT SUM(amount_owed) as result FROM company_user WHERE account_id=id;";
+            ResultSet rs = stmt.executeQuery(sql);
+            if(rs.next()) {
+                if (rs.getFloat("result") == 0.0) {
+                    sql = "DELETE FROM company_user WHERE account_id =" + id + ")";
+                    stmt.executeUpdate(sql);
+                }
+            }else{
+                System.out.println("Can't remove company with id = "+ id +" because there is dept");
+            }
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+    }
+
+    String db_best_users(){
+        String out = "";
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "(SELECT account_id FROM merchant WHERE amount_owed = 0)" +
+                    "UNION(SELECT account_id FROM individual WHERE amount_owed = 0)" +
+                    "UNION(SELECT DISTINCT account_id FROM company_user WHERE amount_owed = 0)" +
+                    "ORDER BY account_id ASC";
+            ResultSet rs = stmt.executeQuery(sql);
+            int i = 1;
+            while(rs.next()){
+                out += i + " -> " + rs.getInt(account_id);
+                i++;
+            }
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+
+        return out;
+    }
+
+    String db_bad_users(){
+        String out = "";
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "(SELECT account_id,amount_owed FROM merchant WHERE amount_owed <> 0)" +
+                    "UNION (SELECT account_id,amount_owed FROM individual WHERE amount_owed <> 0)" +
+                    "UNION (SELECT DISTINCT account_id,amount_owed FROM company_user WHERE amount_owed <> 0)" +
+                    "ORDER BY amount_owed DESC";
+            ResultSet rs = stmt.executeQuery(sql);
+            int i = 1;
+            while (rs.next()){
+                out += i + " -> " + rs.getInt("account_id") +
+                        " : " + rs.getFloat("amount_owed") + "\n";
+            }
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+        return out;
+    }
+    String db_merchant_of_the_month(){
+        String out = "";
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "SELECT merchant_id, COUNT(*) AS sales FROM transactions AS t "+
+                    "WHERE t.transaction_type = 'buy' GROUP BY merchant_id" +
+                    "ORDER BY sales DESC LIMIT 1";
+            ResultSet rs = stmt.executeQuery(sql);
+            int found_id = 0;
+            if (rs.next()){
+                rs.getInt("merchant_id") ;
+                out = "Merchant of the month had ID = " + found_id + " with a total of "+
+                        rs.getInt("sales");
+            }else{
+                out = "Something went wrong!!!!";
+            }
+            sql = "UPDATE merchant SET amount_owed=amount_owed-(amount_owed*0.05)"+
+                    " WHERE merchant.merchant_id = " + found_id ;
+            stmt.executeUpdate(sql);
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+        return out;
+    }
+
+    void db_buy(int user_id, int merchant_id, float buy_amount, String date){
+        String sql;
+
+        try {
+            Statement stmt = con.createStatement();
+            sql = "(SELECT amount_left,account_id, first_name, last_name, credit_limit FROM individual WHERE individual.user_id = "+user_id+")"+
+                "UNION(SELECT amount_left,account_id, first_name, last_name, credit_limit FROM company_user WHERE company_user.user_id = " + user_id+")";
+            ResultSet rs = stmt.executeQuery(sql);
+            float amount_left = 0;
+            int id = 0;
+            String user_first = "";
+            String user_last = "";
+            float credit_limit = 0;
+            float amount_owed = 0;
+            if(rs.next()){
+                amount_left = rs.getFloat("amount_left");
+                id = rs.getInt("account_id");
+                user_first = rs.getString("first_name");
+                user_last = rs.getString("last_name");
+                credit_limit = rs.getFloat("credit_limit");
+                amount_owed = credit_limit - amount_left;
+            }
+            String merchant_first ="";
+            String merchant_last = "";
+            sql = "SELECT first_name, last_name FROM merchant AS m WHERE m.merchant_id = "+ merchant_id;
+            rs = stmt.executeQuery(sql);
+            if(rs.next()){
+                merchant_first = rs.getString("first_name");
+                merchant_last = rs.getString("last_name");
+            }
+            if(amount_left >= buy_amount){
+                /*save transaction*/
+                sql = "INSERT INTO transactions VALUES ("+user_id+",'"+ merchant_first+"','"+ merchant_last +"','"+
+                        user_first+"','" + user_last+"','" + date +"',"+ buy_amount+", buy)";
+                stmt.executeUpdate(sql);
+                float commision = 0;
+                sql = "SELECT commision FROM merchant WHERE mechant_id = "+merchant_id;
+                rs = stmt.executeQuery(sql);
+                if (rs.next()){
+                    commision = rs.getFloat("commision");
+                }
+                sql = "UPDATE merchant SET (profit = profit+ "+ (buy_amount * (1-commision))+",amount_owed = (amount_owed+"+
+                        (buy_amount* commision)+") )WHERE merchant_id = " + merchant_id;
+                stmt.executeUpdate(sql);
+                amount_left -= buy_amount;
+                amount_owed += buy_amount;
+                sql = "UPDATE individual SET (amount_left = "+amount_left+",amount_owed ="+amount_owed+")"+
+                    "WHERE (individual.account_id = "+id;
+                stmt.executeUpdate(sql);
+                sql = "UPDATE company_user SET (amount_left = "+amount_left+",amount_owed ="+amount_owed+")"+
+                        "WHERE comapany_user.account_id = "+id;
+                stmt.executeUpdate(sql);
+
+            }
+        }catch(SQLException se) {
+            sql_exception_handle(se);
+        }
+
+    }
+
+    void db_give_back_individual(int id, float amount){
+        String sql;
+        try{
+            Statement stmt = con.createStatement();
+            sql = "SELECT amount_owed, credit_limit FROM individual WHERE user_id = "+id;
+            ResultSet rs = stmt.executeQuery(sql);
+            float m = 0;
+            float limit =0;
+            if(rs.next()){
+                m = rs.getFloat("amount_owed");
+                limit = rs.getFloat("credit_limit");
+            }
+            if(m < amount){
+                sql = "UPDATE individual SET (amount_owed = 0, amount_left = "+limit+") WHERE user_id = "+ id;
+                stmt.executeUpdate(sql);
+            }else{
+                sql = "UPDATE individual SET (amount_owed  = (amount_owed -"+amount+
+                        "), amount_left = (amount_left +"+amount+")) WHERE user_id = "+id;
+                stmt.executeUpdate(sql);
+            }
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+    }
+     void db_give_back_merchant(int id, float amount){
+         String sql;
+         try{
+             Statement stmt = con.createStatement();
+             sql = "SELECT amount_owed FROM merchant WHERE merchant_id = "+id;
+             ResultSet rs = stmt.executeQuery(sql);
+             float m = 0;
+             if(rs.next()){
+                 m = rs.getFloat("amount_owed");
+             }
+             if(m < amount){
+                 sql = "UPDATE merchant SET (amount_owed = 0) WHERE merchant_id = "+ id;
+                 stmt.executeUpdate(sql);
+             }else{
+                 sql = "UPDATE merchant SET amount_owed  = (amount_owed -"+amount+
+                         ") WHERE merchant_id = "+id;
+                 stmt.executeUpdate(sql);
+             }
+         }catch (SQLException se){
+             sql_exception_handle(se);
+         }
+     }
+
+     void db_give_back_company(int id, float amount){
+        String sql;
+        try {
+            Statement stmt = con.createStatement();
+            sql = "SELECT DISTINCT amount_owed, credit_limit FROM company_user WHERE company_id = "+id;
+            ResultSet rs = stmt.executeQuery(sql);
+            float m = 0;
+            float limit =0;
+            if(rs.next()){
+                m = rs.getFloat("amount_owed");
+                limit = rs.getFloat("credit_limit");
+            }
+            if(m < amount){
+                sql = "UPDATE company_user SET (amount_owed = 0, amount_left = "+limit+") WHERE company_id = "+ id;
+                stmt.executeUpdate(sql);
+            }else{
+                sql = "UPDATE company_user SET (amount_owed  = (amount_owed -"+amount+
+                        "), amount_left = (amount_left +"+amount+")) WHERE company_id = "+id;
+                stmt.executeUpdate(sql);
+            }
+        }catch (SQLException se){
+            sql_exception_handle(se);
+        }
+     }
+
+
+
+
+
+
     public void get_current_salaries(){
         try {
             Statement stmt = con.createStatement();

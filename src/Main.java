@@ -35,7 +35,7 @@ public class Main {
                 db.db_close();
             }
         });
-        //hire tenure professor button
+        /*Open Account*/
         final JButton account_open = new JButton("Open Account");
         account_open.setBounds(50, 140, 300, 20);
         account_open.addActionListener(new ActionListener() {
@@ -43,235 +43,127 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 String inp = input_output_text.getText();
                 String[] string_array = inp.split("\n", -1);
-                String type = string_array[0];
+                int input_index = 0;
+                String type = string_array[input_index];
                 if(type.charAt(0) == 'I'){
-
+                    String first_name = string_array[++input_index];
+                    String last_name  = string_array[++input_index];
+                    String expiration_date = string_array[++input_index];
+                    float credit_limit = Float.parseFloat(string_array[++input_index]);
+                    db.db_open_private_account(first_name,last_name,expiration_date,credit_limit);
                 }else if(type.charAt(0) == 'C'){
-
+                    String company_name = string_array[++input_index];
+                    String expiration_date = string_array[++input_index];
+                    float credit_limit = Float.parseFloat(string_array[++input_index]);
+                    int emp_no = (string_array.length - 4) / 2;
+                    String[] employee_first = new String[emp_no];
+                    String[] employee_last = new String[emp_no];
+                    for(int i = 0;  i < emp_no; i++){
+                        employee_first[i] = string_array[++input_index];
+                        employee_last[i] = string_array[++input_index];
+                    }
+                    db.db_open_company_account(company_name, employee_first, employee_last, expiration_date,credit_limit);
                 }else if(type.charAt(0) == 'M'){
-
+                    String merchant_first = string_array[++input_index];
+                    String merchant_last = string_array[++input_index];
+                    float commission = Float.parseFloat(string_array[++input_index]);
+                    db.db_open_merchant_account(merchant_first,merchant_last, commission);
                 }else {
-                    throw new RuntimeException("First Character must always me the type of account!!!\n");
+                    throw new RuntimeException("First Character must always be the type of account!!!\n");
                 }
-
-
-
-                String first = string_array[0];
-                System.out.println(first);
-                String last = string_array[1];
-                System.out.println(last);
-                int age =  Integer.parseInt(string_array[2]);
-                System.out.println(age);
-                String iban = string_array[3];
-                System.out.println(iban);
-                String address = string_array[4];
-                System.out.println(address);
-                boolean married = false;
-                if(string_array[5].equals("married")){
-                    System.out.println("is married!!!");
-                    married = true;
-                }
-                System.out.println(married);
-                int work_years = Integer.parseInt(string_array[6]);
-                System.out.println(work_years);
-                String bank_name = string_array[7];
-                System.out.println(bank_name);
-                int num_children = Integer.parseInt(string_array[8]);
-                System.out.println(num_children);
-                String start_date = string_array[9];
-                System.out.println(start_date);
-                String dep_name = string_array[10];
-                System.out.println(dep_name);
-                Phones p = new Phones();
-                Children c = new Children();
-                int i = 11;
-                while (i < string_array.length){
-                    if(string_array[i].startsWith("p")){
-                        p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
-                    }else if(string_array[i].startsWith("!")){
-                        String[] sp = string_array[i].replace("!","").split(" ",-1);
-                        c.name.add(sp[0]);
-                        c.age.add(Integer.parseInt(sp[1]));
-                    }
-                    else{
-                        System.out.println("Invalid input");
-                        break;
-                    }
-                    i++;
-                }
-
-                db.db_hire_permanent_staff(true, first,last,age,iban,address,married,work_years,bank_name,
-                        num_children,start_date,p,c,dep_name);
                 input_output_text.setText("");
             }
         });
-        //hire tenure staff button
-        final JButton button_hire_tenure_staff = new JButton("Hire Tenure Staff");
-        button_hire_tenure_staff.setBounds(50, 160, 300, 20);
-        button_hire_tenure_staff.addActionListener(new ActionListener() {
+        /*Account Closing*/
+        final JButton account_close = new JButton("Close Account");
+        account_close.setBounds(50, 160, 300, 20);
+        account_close.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String inp = input_output_text.getText();
                 String[] string_array = inp.split("\n", -1);
-                String first = string_array[0];
-                String last = string_array[1];
-                int age =  Integer.parseInt(string_array[2]);
-                String iban = string_array[3];
-                String address = string_array[4];
-                boolean married = false;
-                if(string_array[5].equals("married")){
-                    System.out.println("is married!!!");
-                    married = true;
-                }
-                int work_years = Integer.parseInt(string_array[6]);
-                String bank_name = string_array[7];
-                int num_children = Integer.parseInt(string_array[8]);
-                String start_date = string_array[9];
-                String dep_name = string_array[10];
-                Phones p = new Phones();
-                Children c = new Children();
-                int i = 11;
-                while (i < string_array.length){
-                    if(string_array[i].startsWith("p")){
-                        p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
-                    }else if(string_array[i].startsWith("!")){
-                        String[] sp = string_array[i].replace("!","").split(" ",-1);
-                        c.name.add(sp[0]);
-                        c.age.add(Integer.parseInt(sp[1]));
-                    }
-                    else{
-                        System.out.println("Invalid input");
-                        break;
-                    }
-                    i++;
+                int input_index = 0;
+                String type = string_array[input_index];
+                if(type.charAt(0) == 'I'){
+                    db.db_close_account_individual(Integer.parseInt(string_array[++input_index]));
+                }else if (type.charAt(0) == 'C'){
+                    db.db_close_account_company(Integer.parseInt(string_array[++input_index]));
+                }else if (type.charAt(0) == 'M'){
+                    db.db_close_account_merchant(Integer.parseInt(string_array[++input_index]));
+                }else{
+                    throw new RuntimeException("First Character must always be the type of account!!!\n");
                 }
 
-                db.db_hire_permanent_staff(false, first,last,age,iban,address,married,work_years,bank_name,
-                        num_children,start_date,p,c,dep_name);
                 input_output_text.setText("");
             }
         });
-        //hire contract professor button
-        final JButton button_hire_contract_professor = new JButton("Hire Contract Professor");
-        button_hire_contract_professor.setBounds(50, 180, 300, 20);
-        button_hire_contract_professor.addActionListener(new ActionListener() {
+        /*Best Users*/
+        final JButton best_users = new JButton("Good Users");
+        best_users.setBounds(50, 180, 300, 20);
+        best_users.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String output = db.db_best_users();
+                input_output_text.setText(output);
+            }
+        });
+        /* Worst users list*/
+        final JButton worst_users = new JButton("Bad users");
+        worst_users.setBounds(50,200, 300, 20);
+        worst_users.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    String output = db.db_bad_users();
+                    input_output_text.setText(output);
+                }
+        });
+        /* Merchant of the Month*/
+        final JButton best_merchant = new JButton("Merchant of The Month");
+        best_merchant.setBounds(50, 220, 300, 20);
+        best_merchant.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String output = db.db_merchant_of_the_month();
+                input_output_text.setText(output);
+            }
+        });
+        /*Buy*/
+        final JButton buy_button = new JButton("Buy");
+        buy_button.setBounds(50, 240, 300, 20);
+        buy_button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String inp = input_output_text.getText();
                 String[] string_array = inp.split("\n", -1);
-                String first = string_array[0];
-                String last = string_array[1];
-                int age =  Integer.parseInt(string_array[2]);
-                String iban = string_array[3];
-                String address = string_array[4];
-                boolean married = false;
-                if(string_array[5].equals("married")){
-                    System.out.println("is married!!!");
-                    married = true;
-                }
-                int work_years = Integer.parseInt(string_array[6]);
-                String bank_name = string_array[7];
-                int num_children = Integer.parseInt(string_array[8]);
-                String start_date = string_array[9];
-                String end_date = string_array[10];
-                String dep_name = string_array[11];
-                int contract_salary = Integer.parseInt(string_array[12]);
-                Phones p = new Phones();
-                Children c = new Children();
-                int i = 13;
-                while (i < string_array.length){
-                    if(string_array[i].startsWith("p")){
-                        p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
-                    }else if(string_array[i].startsWith("!")){
-                        String[] sp = string_array[i].replace("!","").split(" ",-1);
-                        c.name.add(sp[0]);
-                        c.age.add(Integer.parseInt(sp[1]));
-                    }
-                    else{
-                        System.out.println("Invalid input");
-                        break;
-                    }
-                    i++;
-                }
-
-                db.db_hire_contract_staff(true, first,last,age,iban,address,married,work_years,bank_name,
-                        num_children,start_date,end_date,p,c,dep_name,contract_salary);
+                int user_id = Integer.parseInt(string_array[0]);
+                int merchant_id = Integer.parseInt(string_array[1]);
+                float buy_amount = Float.parseFloat(string_array[2]);
+                String date = string_array[3];
+                db.db_buy(user_id, merchant_id, buy_amount, date);
                 input_output_text.setText("");
             }
         });
-        //hire contract staff button
-        final JButton button_hire_contract_staff = new JButton("Hire Contract Staff");
-        button_hire_contract_staff.setBounds(50,200, 300, 20);
-        button_hire_contract_staff.addActionListener(new ActionListener() {
+        /*Give Back*/
+        final JButton give_back_button = new JButton("Give Back");
+        give_back_button.setBounds(50,260, 300, 20);
+        give_back_button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    String inp = input_output_text.getText();
-                    String[] string_array = inp.split("\n", -1);
-                    String first = string_array[0];
-                    String last = string_array[1];
-                    int age =  Integer.parseInt(string_array[2]);
-                    String iban = string_array[3];
-                    String address = string_array[4];
-                    boolean married = false;
-                    if(string_array[5].equals("married")){
-                        System.out.println("is married!!!");
-                        married = true;
-                    }
-                    int work_years = Integer.parseInt(string_array[6]);
-                    String bank_name = string_array[7];
-                    int num_children = Integer.parseInt(string_array[8]);
-                    String start_date = string_array[9];
-                    String end_date = string_array[10];
-                    String dep_name = string_array[11];
-                    int contract_salary = Integer.parseInt(string_array[12]);
-                    Phones p = new Phones();
-                    Children c = new Children();
-                    int i = 13;
-                    while (i < string_array.length){
-                        if(string_array[i].startsWith("p")){
-                            p.phone.add(Integer.parseInt(string_array[i].replace("p","")));
-                        }else if(string_array[i].startsWith("!")){
-                            String[] sp = string_array[i].replace("!","").split(" ",-1);
-                            c.name.add(sp[0]);
-                            c.age.add(Integer.parseInt(sp[1]));
-                        }
-                        else{
-                            System.out.println("Invalid input");
-                            break;
-                        }
-                        i++;
-                    }
-
-                    db.db_hire_contract_staff(false, first,last,age,iban,address,married,work_years,bank_name,
-                            num_children,start_date,end_date,p,c,dep_name,contract_salary);
-                    input_output_text.setText("");
+                String inp = input_output_text.getText();
+                String[] string_array = inp.split("\n", -1);
+                int input_index = 0;
+                String type = string_array[input_index];
+                int id = Integer.parseInt(string_array[++input_index]);
+                float amount = Float.parseFloat(string_array[++input_index]);
+                if(type.charAt(0) == 'I'){
+                    db.db_give_back_individual(id, amount);
+                }else if (type.charAt(0) == 'C'){
+                    db.db_give_back_merchant(id, amount);
+                }else if (type.charAt(0) == 'M'){
+                    db.db_give_back_company(id, amount);
+                }else{
+                    throw new RuntimeException("First Character must always be the type of account!!!\n");
                 }
-        });
-        //Update Employee button
-        final JButton button_update_employee = new JButton("Update Employee");
-        button_update_employee.setBounds(50, 220, 300, 20);
-        button_update_employee.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        //fire or retire button
-        final JButton button_fire_retire = new JButton("Fire/Retire");
-        button_fire_retire.setBounds(50, 240, 300, 20);
-        button_fire_retire.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        //promote button
-        final JButton button_promote = new JButton("Promote");
-        button_promote.setBounds(50,260, 300, 20);
-        button_promote.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
             }
         });
         //payment button
@@ -343,12 +235,12 @@ public class Main {
         frame.add(button_initialize);
         frame.add(button_close);
         frame.add(account_open);
-        frame.add(button_hire_tenure_staff);
-        frame.add(button_hire_contract_professor);
-        frame.add(button_hire_contract_staff);
-        frame.add(button_update_employee);
-        frame.add(button_fire_retire);
-        frame.add(button_promote);
+        frame.add(account_close);
+        frame.add(best_users);
+        frame.add(worst_users);
+        frame.add(best_merchant);
+        frame.add(buy_button);
+        frame.add(give_back_button);
         frame.add(button_payment);
         frame.add(button_payroll_status);
         frame.add(button_min_max_median_payroll);
